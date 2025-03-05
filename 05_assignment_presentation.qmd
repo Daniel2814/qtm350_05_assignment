@@ -1,0 +1,119 @@
+---
+title: "Measles Vaccinations and Unemployment Rate"
+author: "Daniel Nickas"
+format:
+  revealjs:  
+    theme: night
+    transition: slide
+    code-line-numbers: true
+    embed-resources: true
+bibliography: references.bib
+editor:
+  render-on-save: true
+---
+
+# Introduction:
+This is a quick exploratory data analysis on measles vaccination rates and unemployment rates. I am learning how to use quarto
+
+## Code to import data 
+```{python}
+#| echo: false
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+data = pd.read_csv('wdi.csv')
+data.head()
+```
+
+
+```{python}
+#| echo: false
+eda_data = data[['country', 'unemployment_rate', 'measles_immunisation_rate']]
+summary_stats = eda_data.describe()
+missing_values = eda_data.isnull().sum()
+
+```
+
+## Vaccinated Countries
+
+TOP TEN VACCINATED COUNTRIES
+```{python}
+top_vaccinated_countries = data.nlargest(10, 'measles_immunisation_rate')[['country', 'measles_immunisation_rate', 'unemployment_rate']]
+top_vaccinated_countries
+
+```
+
+TEN LOWEST VACCINATED COUNTRIES
+```{python}
+
+lowest_vaccinated_countries = data.nsmallest(10, 'measles_immunisation_rate')[['country', 'measles_immunisation_rate', 'unemployment_rate']]
+lowest_vaccinated_countries
+```
+
+## Measles and Economic Factors
+```{python}
+#| echo: false
+#| fig-cap: "Measles Data"
+#| label: measles_immunization rate
+# measles
+plt.figure(figsize=(8,5))
+sns.histplot(data=eda_data, x='measles_immunisation_rate', bins=20, kde=True)
+plt.title('Distribution of Measles Immunisation Rate')
+plt.xlabel('Measles Immunisation Rate (%)')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+Measles immunisation rates and economic factors, such as unemployment and overall economic stability, are closely linked. Higher immunisation rates often correlate with stronger healthcare infrastructure, which is typically found in wealthier nations with stable economies. Countries with robust economic development can allocate more resources to public health initiatives, ensuring widespread vaccine access. Conversely, nations with low immunisation rates often face economic challenges, including higher poverty rates, weaker healthcare systems, and limited public funding for immunisation programs. Additionally, outbreaks of vaccine-preventable diseases like measles can strain healthcare systems, reduce workforce productivity, and hinder economic growth by increasing healthcare costs and reducing human capital development. Thus, improving immunisation coverage can have long-term economic benefits by fostering a healthier, more productive population. 
+
+When immunisation rates decline, the likelihood of outbreaks increases, leading to higher healthcare expenditures and economic disruptions. Governments must divert resources to outbreak management, which could otherwise be invested in economic development. Additionally, workforce productivity suffers as infected individuals miss work, parents stay home to care for sick children, and businesses experience operational disruptions. This burden is especially severe in low-income countries, where healthcare systems are already strained. This has been shown in small localized studies such as the measles outbreak in Clark County (2012), but has been deemed externally valid. 
+@pike2021societal
+
+## Distribution of Unemployment rates
+```{python}
+#| echo: false
+#| fig-cap: "The Distribution of Unemployment Rates"
+#| label: unemployment_rate
+plt.figure(figsize=(8,5))
+sns.histplot(data=eda_data, x='unemployment_rate', bins=20, kde=True)
+plt.title('Distribution of Unemployment Rate')
+plt.xlabel('Unemployment Rate (%)')
+plt.ylabel('Frequency')
+plt.show()
+
+```
+
+
+Generally speaking, the distribution of unemployment rates (as given by the wdi database) represent a right skewed bell curve. Many countries have unemployment rates remain grouped around the 3% - 15% rate. The countries with exceptionally high unemployment rates tend to be countries in the midst of an economic stumble or are a "developing" country. 
+
+According to the UN's International Labor Organization (ILO) has estimated that both the unemployment rate and the jobs gap have declined below pre-pandemic levels. In 2023, the global unemployment rate was 5.1%, a 0.2% improvement over 2022. The global jobs gap—the number of individuals who want employment, regardless of whether they are currently available or searching—narrowed in 2023 to 435 million, down from close to 500 million in 2020, 476 million in 2021 and over 440 million in 2022. However, progress was uneven. Even within affluent/developed countries, high inflation rates and rising housing costs significantly eroded much of the recent nominal wage gains. @feldmann2007economic
+
+## The Relationship Between Unemployment and Measles Immunization Rates
+```{python}
+#| echo: false
+#| fig-cap: "Relationship between unemployment rate and measles immunization rate"
+#| label: unemployment vs. measles
+plt.figure(figsize=(8,5))
+sns.scatterplot(data=eda_data, x='unemployment_rate', y='measles_immunisation_rate')
+plt.title('Unemployment Rate vs Measles Immunisation Rate')
+plt.xlabel('Unemployment Rate (%)')
+plt.ylabel('Measles Immunisation Rate (%)')
+plt.show()
+
+```
+
+## Basic Key Statistics on Measles Immunization Rates and Unemployment Rates
+```{python}
+#| echo: false
+#| fig-cap: "Key stats"
+#| label: 4 key stats
+key_statistics = pd.DataFrame({
+    "Category": ["Highest Measles Immunisation Rate", "Lowest Measles Immunisation Rate",
+                 "Average Unemployment Rate (High Immunisation)", "Average Unemployment Rate (Low Immunisation)"],
+    "Value": [99.0, 33.0, 
+              top_vaccinated_countries['unemployment_rate'].mean(), 
+              lowest_vaccinated_countries['unemployment_rate'].mean()]
+})
+
+key_statistics
+```
